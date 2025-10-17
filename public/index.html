@@ -1,193 +1,412 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Recommendation System</title>
-    <meta name="api-base" content="">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#667eea',
-                        secondary: '#764ba2'
-                    }
-                }
-            }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="api-base" content="" />
+  <title>Car Recommendation System</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            carbon: {
+              900: '#050506',
+              800: '#0b0b0c',
+              700: '#131316',
+              600: '#1b1b1f'
+            },
+            teal: {
+              400: '#14b8a6',
+              300: '#2dd4bf'
+            },
+            crimson: {
+              500: '#ff3b30',
+              600: '#e0312d'
+            },
+            glass: 'rgba(255,255,255,0.03)'
+          },
+          boxShadow: {
+            'neon': '0 6px 30px rgba(20,184,166,0.07), 0 2px 8px rgba(0,0,0,0.6)',
+            'card': '0 12px 30px rgba(2,6,23,0.6)'
+          },
+          borderRadius: {
+            'xl-3': '28px'
+          }
         }
-    </script>
-    <style>
-        .slider {
-            -webkit-appearance: none;
-            appearance: none;
-            background: transparent;
-            cursor: pointer;
-        }
-        
-        .slider::-webkit-slider-track {
-            background: #e5e7eb;
-            height: 8px;
-            border-radius: 4px;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            background: #3b82f6;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .slider::-webkit-slider-thumb:hover {
-            background: #2563eb;
-            transform: scale(1.1);
-        }
-        
-        .slider::-moz-range-track {
-            background: #e5e7eb;
-            height: 8px;
-            border-radius: 4px;
-            border: none;
-        }
-        
-        .slider::-moz-range-thumb {
-            background: #3b82f6;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-    </style>
+      },
+      plugins: []
+    }
+  </script>
+
+  <style>
+    /* --- Carbon weave background (pure CSS, tileable illusion) --- */
+    :root {
+      --carbon-dark: #0b0b0c;
+      --carbon-mid: #131316;
+      --highlight-teal: rgba(20,184,166,0.12);
+      --accent-teal: #14b8a6;
+      --accent-crimson: #ff3b30;
+      --glass-overlay: rgba(255,255,255,0.02);
+    }
+
+    /* clean dark background without patterns */
+    body {
+      background-color: var(--carbon-dark);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #e6eef1;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      min-height: 100vh;
+    }
+
+    /* subtle vignette */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(60% 40% at 50% 10%, rgba(255,255,255,0.02), transparent 10%),
+                  radial-gradient(80% 60% at 50% 90%, rgba(0,0,0,0.45), transparent 40%);
+      mix-blend-mode: multiply;
+      z-index: 0;
+    }
+
+    /* glass card */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    /* glowing outlines */
+    .focus-glow:focus, .focus-glow:focus-within {
+      box-shadow: 0 6px 24px rgba(20,184,166,0.08), inset 0 0 0 1px rgba(20,184,166,0.06);
+      border-color: rgba(20,184,166,0.9);
+    }
+
+    /* hero title styling */
+    .brand-gradient {
+      background: linear-gradient(90deg, #14b8a6 0%, #2dd4bf 35%, #ffffff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+    }
+
+    /* primary button */
+    .btn-primary {
+      background: linear-gradient(90deg, rgba(20,184,166,0.12), rgba(255,255,255,0.03));
+      border: 1px solid rgba(20,184,166,0.12);
+      color: #061014;
+      box-shadow: 0 10px 30px rgba(20,184,166,0.06);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.01);
+      background: linear-gradient(90deg, var(--accent-teal), #7af0df);
+      color: #071115;
+      box-shadow: 0 18px 40px rgba(20,184,166,0.16);
+    }
+
+    /* accent action (crimson) */
+    .accent-crimson {
+      border: 1px solid rgba(255,59,48,0.08);
+    }
+    .accent-crimson:hover {
+      box-shadow: 0 10px 30px rgba(255,59,48,0.08);
+    }
+
+    /* slider */
+    input[type="range"].slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 12px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius: 999px;
+      outline: none;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+    }
+    input[type="range"].slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ffffff, var(--accent-teal));
+      border: 3px solid rgba(0,0,0,0.5);
+      box-shadow: 0 6px 18px rgba(20,184,166,0.12), 0 2px 6px rgba(0,0,0,0.7);
+      cursor: pointer;
+      transform: translateY(-2px);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    input[type="range"].slider::-webkit-slider-thumb:hover {
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 10px 30px rgba(20,184,166,0.18);
+    }
+    input[type="range"].slider::-moz-range-thumb {
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ffffff, var(--accent-teal));
+      border: 3px solid rgba(0,0,0,0.5);
+      box-shadow: 0 6px 18px rgba(20,184,166,0.12);
+    }
+
+    /* result card */
+    .result-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.03);
+      transition: transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s;
+    }
+    .result-card:hover {
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 18px 40px rgba(2,8,23,0.7), 0 6px 20px rgba(20,184,166,0.06);
+      border-color: rgba(20,184,166,0.12);
+    }
+
+    /* small utility */
+    .muted { color: rgba(230,238,241,0.64); }
+    .micro { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+    .brand-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: inline-grid;
+      place-items: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 8px 24px rgba(2,6,23,0.7), 0 2px 6px rgba(0,0,0,0.7);
+    }
+
+    /* responsive tweak for large headings */
+    @media (min-width: 1024px) {
+      .hero-title { font-size: 4.4rem; line-height: .95; }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen">
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="text-center mb-12 text-white">
-            <h1 class="text-5xl font-bold mb-4 text-shadow-lg">
-                <i class="fas fa-car mr-3"></i>Car Recommendation System
-            </h1>
-            <p class="text-xl opacity-90">Find your perfect car based on your requirements</p>
-        </header>
+<body class="antialiased">
+  <div class="vignette" aria-hidden="true"></div>
 
-        <!-- Main Content -->
-        <div class="bg-white rounded-3xl shadow-2xl p-8">
-            <!-- Search Section -->
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Tell us what you're looking for</h2>
-                
-                <form id="carSearchForm" class="max-w-4xl mx-auto">
-                    <!-- First Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div class="space-y-4">
-                            <label class="block text-sm font-semibold text-gray-700">Budget Range (₹)</label>
-                            <div class="bg-gray-50 p-4 rounded-xl">
-                                <div class="mb-4">
-                                    <div class="flex justify-between text-sm text-gray-600 mb-2">
-                                        <span>₹5L</span>
-                                        <span>₹7L</span>
-                                        <span>₹10L</span>
-                                        <span>₹15L</span>
-                                        <span>₹20L</span>
-                                        <span>₹25L</span>
-                                        <span>₹30L+</span>
-                                    </div>
-                                    <input type="range" id="budgetRange" name="budgetRange" min="0" max="6" value="3" step="1" 
-                                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
-                                </div>
-                                <div class="text-center mb-3">
-                                    <span id="budgetDisplay" class="text-lg font-bold text-blue-600">₹15 Lakh</span>
-                                    <input type="hidden" id="budget" name="budget">
-                                </div>
-                                <div class="flex flex-wrap gap-2 justify-center">
-                                    <button type="button" class="budget-preset px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors" data-range="0">₹5L</button>
-                                    <button type="button" class="budget-preset px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors" data-range="1">₹7L</button>
-                                    <button type="button" class="budget-preset px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors" data-range="2">₹10L</button>
-                                    <button type="button" class="budget-preset px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors" data-range="3">₹15L</button>
-                                    <button type="button" class="budget-preset px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors" data-range="4">₹20L</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <label for="fuelType" class="block text-sm font-semibold text-gray-700">Fuel Type</label>
-                            <select id="fuelType" name="fuelType" 
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors">
-                                <option value="any">Any</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Second Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div class="space-y-2">
-                            <label for="bodyType" class="block text-sm font-semibold text-gray-700">Body Type</label>
-                            <select id="bodyType" name="bodyType" 
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors">
-                                <option value="any">Any</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label for="transmission" class="block text-sm font-semibold text-gray-700">Transmission</label>
-                            <select id="transmission" name="transmission" 
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors">
-                                <option value="any">Any</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Third Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="space-y-2">
-                            <label for="brand" class="block text-sm font-semibold text-gray-700">Brand</label>
-                            <select id="brand" name="brand" 
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors">
-                                <option value="any">Any</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label for="minYear" class="block text-sm font-semibold text-gray-700">Minimum Year</label>
-                            <input type="number" id="minYear" name="minYear" placeholder="e.g., 2020" min="2000" max="2024" 
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors">
-                        </div>
-                    </div>
-
-                    <!-- Search Button -->
-                    <div class="text-center">
-                        <button type="submit" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-search mr-2"></i>Find My Car
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Results Section -->
-            <div id="resultsSection" class="hidden">
-                <div class="border-t-2 border-gray-100 pt-8">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Recommended Cars</h2>
-                    <div class="text-center mb-8">
-                        <span id="resultsCount" class="text-lg text-gray-600">0</span> cars found matching your criteria
-                    </div>
-                    <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <!-- Car cards will be inserted here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loading Section -->
-            <div id="loading" class="hidden text-center py-16">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-                <p class="text-lg text-gray-600">Finding the perfect cars for you...</p>
-            </div>
+  <main class="max-w-7xl mx-auto px-6 py-12 relative z-10">
+    <header class="text-center mb-12">
+      <div class="inline-flex items-center gap-4">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M3 11c.6-3 2.2-4 5-5h8c2.8 1 4.4 2 5 5l.5 2.5c.2.9-.1 1.9-1 2.4l-2.6 1.5c-.6.4-1.4.4-2 0L13 17H8l-3.9-1.6c-.8-.4-1.2-1.5-1-2.4L3 11z" fill="#0b0b0b" opacity=".06"/>
+            <path d="M4 13h16" stroke="rgba(255,255,255,0.06)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M7 13v2" stroke="#14b8a6" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M17 13v2" stroke="#ff3b30" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
         </div>
-    </div>
 
-    <script src="script.js"></script>
+        <div>
+          <h1 class="hero-title brand-gradient text-4xl md:text-5xl leading-tight">Car Recommendation System</h1>
+          <p class="muted mt-2 micro">Find the perfect car based on your requirements</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="glass rounded-xl-3 p-6 md:p-10 shadow-card border border-white/6">
+      <div class="mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold">Your Preferences</h2>
+        <p class="muted mt-1">Refined inputs. Precise results. No noise.</p>
+      </div>
+
+      <form id="carSearchForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <label class="block text-sm font-semibold">Budget Range (Max Price)</label>
+          <div class="p-4 rounded-xl border border-white/4 glass">
+            <div class="flex items-center justify-between text-xs text-white/60 mb-4">
+              <span>₹5L</span>
+              <span>₹7L</span>
+              <span>₹10L</span>
+              <span>₹15L</span>
+              <span>₹20L</span>
+              <span>₹25L</span>
+              <span>₹30L+</span>
+            </div>
+
+            <input id="budgetRange" class="slider" type="range" min="0" max="7" step="1" value="3" aria-label="Budget range" />
+
+            <div class="mt-4 text-center">
+              <div class="text-sm muted micro">Selected</div>
+              <div id="budgetDisplay" class="text-2xl font-extrabold text-teal-400 mt-1">₹15 Lakh</div>
+              <input type="hidden" id="budget" name="budget" value="1500000" />
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-3 justify-center pt-3 border-t border-white/4">
+              <button type="button" data-range="0" class="preset btn tiny rounded-full px-3 py-1 text-xs muted glass">₹5L</button>
+              <button type="button" data-range="1" class="preset btn tiny rounded-full px-3 py-1 text-xs muted glass">₹7L</button>
+              <button type="button" data-range="2" class="preset btn tiny rounded-full px-3 py-1 text-xs muted glass">₹10L</button>
+              <button type="button" data-range="3" class="preset btn tiny rounded-full px-3 py-1 text-xs muted glass active">₹15L</button>
+              <button type="button" data-range="4" class="preset btn tiny rounded-full px-3 py-1 text-xs muted glass">₹20L</button>
+              <button type="button" data-range="7" class="preset btn tiny rounded-full px-3 py-1 text-xs muted glass">Any Price</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">Fuel Type</label>
+            <select id="fuelType" name="fuelType" class="w-full px-4 py-3 rounded-xl focus-glow focus:outline-none bg-carbon-700 border border-white/10 text-white">
+              <option value="any">Any</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">Body Type</label>
+            <select id="bodyType" name="bodyType" class="w-full px-4 py-3 rounded-xl focus-glow focus:outline-none bg-carbon-700 border border-white/10 text-white">
+              <option value="any">Any</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Transmission</label>
+            <select id="transmission" name="transmission" class="w-full px-4 py-3 rounded-xl focus-glow focus:outline-none bg-carbon-700 border border-white/10 text-white">
+              <option value="any">Any</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">Brand</label>
+            <select id="brand" name="brand" class="w-full px-4 py-3 rounded-xl focus-glow focus:outline-none bg-carbon-700 border border-white/10 text-white">
+              <option value="any">Any</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">Minimum Year</label>
+            <input id="minYear" name="minYear" type="number" placeholder="e.g., 2020" min="2000" max="2025" class="w-full px-4 py-3 rounded-xl focus-glow focus:outline-none bg-carbon-700 border border-white/10 text-white placeholder-gray-400" />
+          </div>
+
+          <div class="flex items-end justify-center mt-4">
+            <button id="findBtn" type="submit" class="btn-primary px-8 py-3 rounded-full font-bold shadow-neon transition-transform">
+              <span class="inline-flex items-center gap-3">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z" stroke="#061014" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 21l-4.35-4.35" stroke="#061014" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Find My Car
+              </span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div id="loading" class="hidden mt-8 text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-teal-400 mb-4"></div>
+        <p class="muted">Tuning the engines… finding the best matches.</p>
+      </div>
+
+      <div id="resultsSection" class="hidden mt-10">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-semibold">Recommended Cars</h3>
+          <div class="text-right">
+            <div id="resultsCount" class="text-teal-400 font-mono text-lg">0</div>
+            <div class="muted micro">matches</div>
+          </div>
+        </div>
+
+        <div id="carsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
+    </div>
+    </section>
+
+    <footer class="mt-10 text-center muted micro">Carbon Hybrid • Teal precision • Crimson pulse</footer>
+  </main>
+
+  <style>
+     /* Base adjustments for selects inside the form */
+     #carSearchForm select {
+     -webkit-appearance: none;
+     appearance: none;
+     background: transparent;
+     padding-right: 3rem; /* space for custom arrow */
+     transition: box-shadow .3s ease, transform .3s ease, background .3s ease, border-color .3s ease;
+     cursor: pointer;
+     }
+
+    /* Wrapper to position the arrow */
+    .select-wrap { position: relative; display: block; width: 100%; }
+
+    /* Fix: Force dark background for the options menu list */
+    #carSearchForm select option {
+        background-color: var(--carbon-mid, #131316); 
+        color: #e6eef1; 
+    }
+    #carSearchForm select option:checked {
+        background-color: var(--accent-teal, #14b8a6); 
+        color: #0b0b0c; 
+    }
+
+     /* Enhanced hover effects for selects - more specific selectors */
+     #carSearchForm select:hover {
+     box-shadow: 0 8px 30px rgba(20, 184, 166, 0.2), 0 0 0 3px rgba(20, 184, 166, 0.3) !important;
+     transform: translateY(-5px) !important;
+     background: linear-gradient(180deg, rgba(20, 184, 166, 0.15), rgba(20, 184, 166, 0.08)) !important;
+     border-color: rgba(20, 184, 166, 1) !important;
+     }
+     
+     /* Active/focus state enhancement - more specific */
+     #carSearchForm select:focus {
+     box-shadow: 0 8px 30px rgba(20,184,166,0.2), inset 0 0 0 1px rgba(20,184,166,0.3), 0 0 0 3px rgba(20,184,166,0.3) !important;
+     border-color: rgba(20,184,166,1) !important;
+     background: linear-gradient(180deg, rgba(20,184,166,0.15), rgba(20,184,166,0.08)) !important;
+     }
+
+     /* Arrow styling and animation (SVG sibling of select) */
+     .select-wrap svg {
+     transition: transform .18s cubic-bezier(.2,.9,.3,1), opacity .12s, stroke .12s;
+     opacity: .9;
+     pointer-events: none;
+     }
+     
+     /* Arrow hover effect - more specific */
+     .select-wrap:hover svg {
+     opacity: 1 !important;
+     stroke: rgba(20,184,166,0.8) !important;
+     }
+     
+     /* rotate arrow when select is focused/open - more specific */
+     #carSearchForm .select-wrap select:focus + svg,
+     #carSearchForm .select-wrap select:active + svg {
+     transform: translateY(-50%) rotate(180deg) !important;
+     opacity: 1 !important;
+     stroke: rgba(20,184,166,1) !important;
+     }
+  </style>
+
+  <script>
+    // Wrap existing select elements with a relative container and append a custom SVG arrow
+    (function () {
+    document.querySelectorAll('form select').forEach(function (select) {
+      // avoid double-wrapping
+      if (select.parentElement && select.parentElement.classList.contains('select-wrap')) return;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'select-wrap';
+      select.parentNode.insertBefore(wrap, select);
+      wrap.appendChild(select);
+
+      // create SVG arrow and append after the select
+      var svgNS = 'http://www.w3.org/2000/svg';
+      var svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      svg.setAttribute('width', '18');
+      svg.setAttribute('height', '18');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.style.position = 'absolute';
+      svg.style.right = '14px';
+      svg.style.top = '50%';
+      svg.style.transform = 'translateY(-50%)';
+      svg.innerHTML = "<path d='M5 7l5 5 5-5' stroke='rgba(230,238,241,0.78)' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/>";
+      wrap.appendChild(svg);
+
+      // improve touch/cursor UX
+      select.style.cursor = 'pointer';
+      select.style.paddingRight = '3rem';
+    });
+    })();
+  </script>
+
+  <script src="script.js"></script>
 </body>
 </html>

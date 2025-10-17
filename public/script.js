@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
         { value: 3, label: '₹15 Lakh', max: 1500000 },
         { value: 4, label: '₹20 Lakh', max: 2000000 },
         { value: 5, label: '₹25 Lakh', max: 2500000 },
-        { value: 6, label: '₹30 Lakh+', max: null }
+        { value: 6, label: '₹30 Lakh+', max: 3000000 },
+        { value: 7, label: 'Any Price', max: null }
     ];
 
     // Initialize budget range
@@ -40,21 +41,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle budget preset buttons
     function updatePresetButtons(activeIndex) {
-        const presetButtons = document.querySelectorAll('.budget-preset');
+        const presetButtons = document.querySelectorAll('.preset');
         presetButtons.forEach((button, index) => {
-            if (index === activeIndex) {
-                button.classList.add('bg-blue-500', 'text-white');
-                button.classList.remove('bg-blue-100', 'text-blue-600');
+            const buttonIndex = parseInt(button.dataset.range);
+            if (buttonIndex === activeIndex) {
+                button.classList.add('!bg-teal-400', '!text-carbon-900', 'font-bold');
+                button.classList.remove('muted');
             } else {
-                button.classList.remove('bg-blue-500', 'text-white');
-                button.classList.add('bg-blue-100', 'text-blue-600');
+                button.classList.remove('!bg-teal-400', '!text-carbon-900', 'font-bold');
+                button.classList.add('muted');
             }
         });
     }
 
     // Add click handlers for preset buttons
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('budget-preset')) {
+        if (e.target.classList.contains('preset')) {
             const rangeIndex = parseInt(e.target.dataset.range);
             budgetRange.value = rangeIndex;
             const range = budgetRanges[rangeIndex];
@@ -161,12 +163,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Create car card element
+    // Create car card element
     function createCarCard(car) {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100';
+        console.log('Creating car card for:', car.make, car.model); // Debug log
+        const card = document.createElement('article');
+        card.className = 'result-card p-6 rounded-xl';
         
-        // Format price
-        const price = car.price ? `₹${car.price.toLocaleString()}` : 'Price not available';
+        // Format price with commas and lakh/crore format
+        const price = car.price ? formatPrice(car.price) : 'Price not available';
         
         // Get key features
         const features = [];
@@ -179,50 +183,69 @@ document.addEventListener('DOMContentLoaded', function() {
         const featuresText = features.join(' • ');
         
         card.innerHTML = `
-            <img src="${car.image_url || 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400'}" 
-                 alt="${car.make} ${car.model}" 
-                 class="w-full h-48 object-cover"
-                 onerror="this.src='https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400'">
-            <div class="p-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-1">${car.make} ${car.model}</h3>
-                ${car.variant ? `<h4 class="text-sm text-gray-600 mb-3 italic">${car.variant}</h4>` : ''}
-                <div class="text-2xl font-bold text-blue-600 mb-4">${price}</div>
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="flex items-center text-sm text-gray-600">
-                        <i class="fas fa-gas-pump text-blue-500 mr-2"></i>
-                        <span>${car.fuel_type || 'N/A'}</span>
+            <div class="flex flex-col gap-4">
+                <div class="w-full h-52 md:h-64 rounded-xl overflow-hidden border border-teal-500/20 shadow-md">
+                    <img src="${car.image_url || 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800'}"
+                       alt="${car.make} ${car.model}"
+                       class="w-full h-full object-cover transition-transform duration-500 hover:scale-105 rounded-xl"
+                       onerror="this.src='https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800'">
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="font-semibold text-2xl leading-snug">${car.make} ${car.model}</div>
+                            <div class="muted text-sm mt-0.5">${car.variant || car.body_type || 'Premium Vehicle'}</div>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <div class="text-teal-400 font-extrabold text-2xl">${price}</div>
+                            <div class="muted text-xs mt-0.5">${car.created_at ? new Date(car.created_at).getFullYear() : '2024'}</div>
+                        </div>
                     </div>
-                    <div class="flex items-center text-sm text-gray-600">
-                        <i class="fas fa-car text-blue-500 mr-2"></i>
-                        <span>${car.body_type || 'N/A'}</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-white/5">
+                    <div class="flex items-center text-sm">
+                        <span class="text-teal-400 mr-2">⛽</span>
+                        <span class="muted">${car.fuel_type || 'N/A'}</span>
                     </div>
-                    <div class="flex items-center text-sm text-gray-600">
-                        <i class="fas fa-cog text-blue-500 mr-2"></i>
-                        <span>${car.transmission || 'N/A'}</span>
+                    <div class="flex items-center text-sm">
+                        <span class="text-teal-400 mr-2">🚗</span>
+                        <span class="muted">${car.body_type || 'N/A'}</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <span class="text-teal-400 mr-2">⚙️</span>
+                        <span class="muted">${car.transmission || 'N/A'}</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <span class="text-teal-400 mr-2">👥</span>
+                        <span class="muted">${car.seating_capacity || 'N/A'} seats</span>
                     </div>
                     ${car.engine_capacity ? `
-                    <div class="flex items-center text-sm text-gray-600">
-                        <i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>
-                        <span>${car.engine_capacity}</span>
+                    <div class="flex items-center text-sm">
+                        <span class="text-teal-400 mr-2">🔧</span>
+                        <span class="muted">${car.engine_capacity}</span>
                     </div>
                     ` : ''}
                     ${car.mileage ? `
-                    <div class="flex items-center text-sm text-gray-600">
-                        <i class="fas fa-road text-blue-500 mr-2"></i>
-                        <span>${car.mileage} km/l</span>
+                    <div class="flex items-center text-sm">
+                        <span class="text-teal-400 mr-2">🛣️</span>
+                        <span class="muted">${car.mileage} km/l</span>
                     </div>
                     ` : ''}
                 </div>
+                
                 ${featuresText ? `
-                <div class="bg-gray-50 p-3 rounded-lg mb-3">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Key Specifications</h4>
-                    <p class="text-sm text-gray-600">${featuresText}</p>
+                <div class="bg-carbon-700 p-3 rounded-lg border border-white/5">
+                    <h4 class="text-sm font-semibold text-teal-400 mb-2">Key Specifications</h4>
+                    <p class="text-sm muted">${featuresText}</p>
                 </div>
                 ` : ''}
+                
                 ${car.features ? `
-                <div class="bg-blue-50 p-3 rounded-lg">
-                    <h4 class="text-sm font-semibold text-blue-700 mb-1">Features</h4>
-                    <p class="text-sm text-blue-600">${car.features}</p>
+                <div class="bg-carbon-700 p-3 rounded-lg border border-white/5">
+                    <h4 class="text-sm font-semibold text-teal-400 mb-2">Features</h4>
+                    <p class="text-sm muted">${car.features}</p>
                 </div>
                 ` : ''}
             </div>
@@ -234,10 +257,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display no results message
     function displayNoResults() {
         carsGrid.innerHTML = `
-            <div class="col-span-full text-center py-16">
-                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-2xl font-bold text-gray-700 mb-2">No cars found</h3>
-                <p class="text-lg text-gray-500">Try adjusting your search criteria to find more options.</p>
+            <div class="p-6 glass rounded-xl text-center muted">
+                <div class="text-4xl mb-4">🔍</div>
+                <h3 class="text-xl font-bold mb-2">No cars found</h3>
+                <p class="text-sm">Try adjusting your search criteria to find more options.</p>
             </div>
         `;
     }
@@ -245,10 +268,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display error message
     function displayError() {
         carsGrid.innerHTML = `
-            <div class="col-span-full text-center py-16">
-                <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
-                <h3 class="text-2xl font-bold text-gray-700 mb-2">Error occurred</h3>
-                <p class="text-lg text-gray-500">Sorry, there was an error searching for cars. Please try again.</p>
+            <div class="p-6 glass rounded-xl text-center muted">
+                <div class="text-4xl mb-4">⚠️</div>
+                <h3 class="text-xl font-bold mb-2">Error occurred</h3>
+                <p class="text-sm">Sorry, there was an error searching for cars. Please try again.</p>
             </div>
         `;
         resultsSection.classList.remove('hidden');
@@ -256,13 +279,16 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsCount.textContent = '0';
     }
 
-    // Format currency
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(amount);
+    // Format price with commas and lakh/crore format
+    function formatPrice(amount) {
+        if (amount >= 10000000) { // 1 crore or more
+            const crores = (amount / 10000000).toFixed(1);
+            return `₹${crores} Cr`;
+        } else if (amount >= 100000) { // 1 lakh or more
+            const lakhs = (amount / 100000).toFixed(1);
+            return `₹${lakhs} L`;
+        } else {
+            return `₹${amount.toLocaleString()}`;
+        }
     }
 });

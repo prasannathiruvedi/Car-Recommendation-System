@@ -321,3 +321,9 @@ body {
         padding: 20px;
     }
 }
+
+.result-card:hover {
+  border-color: rgba(255, 59, 48, 0.25) !important;
+  box-shadow: 0 8px 24px rgba(255, 59, 48, 0.12);
+  transform: translateY(-5px);
+}
